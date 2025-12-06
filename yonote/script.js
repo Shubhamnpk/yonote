@@ -220,7 +220,6 @@ function populateFormForEdit(note) {
     // Populate basic fields
     titleTag.value = note.title || '';
     descTag.value = note.description || '';
-    updateCounters();
 
     // Populate dropdowns
     document.getElementById('note-category').value = note.category || 'personal';
@@ -244,42 +243,13 @@ function initializeForm() {
 
     // Clear button functionality
     clearBtn.addEventListener('click', clearForm);
-
-    // Update counters initially
-    updateCounters();
 }
 
 function handleInputChange() {
-    updateCounters();
     autoSaveDraft();
     validateField(this);
 }
 
-function updateCounters() {
-    // Title counter
-    const titleCount = titleTag.value.length;
-    const titleCounter = titleTag.parentElement.querySelector('.char-count .current');
-    if (titleCounter) {
-        titleCounter.textContent = titleCount;
-        titleCounter.style.color = titleCount > 80 ? '#e74c3c' : 'var(--primary-color)';
-    }
-
-    // Description counter and word count
-    const descCount = descTag.value.length;
-    const wordCount = descTag.value.trim() === '' ? 0 : descTag.value.trim().split(/\s+/).length;
-
-    const descCounter = descTag.parentElement.querySelector('.char-count .current');
-    const wordCounter = descTag.parentElement.querySelector('.word-count');
-
-    if (descCounter) {
-        descCounter.textContent = descCount;
-        descCounter.style.color = descCount > 800 ? '#e74c3c' : 'var(--primary-color)';
-    }
-
-    if (wordCounter) {
-        wordCounter.textContent = `${wordCount} word${wordCount !== 1 ? 's' : ''}`;
-    }
-}
 
 function autoSaveDraft() {
     const currentData = {
@@ -319,7 +289,6 @@ function loadDraft() {
         if (!draft.timestamp || Date.now() - draft.timestamp < 24 * 60 * 60 * 1000) {
             titleTag.value = draft.title || '';
             descTag.value = draft.description || '';
-            updateCounters();
         } else {
             localStorage.removeItem('noteDraft');
         }
@@ -397,7 +366,6 @@ function clearForm() {
 function resetForm() {
     titleTag.value = '';
     descTag.value = '';
-    updateCounters();
 
     // Reset dropdowns to defaults
     document.getElementById('note-category').value = 'personal';

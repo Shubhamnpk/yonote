@@ -576,6 +576,10 @@ body {
   position: relative;
 }
 
+.modern-input {
+  height: 48px;
+}
+
 .modern-input, .modern-textarea {
   width: 100%;
   padding: 16px 20px;
@@ -583,7 +587,7 @@ body {
   border-radius: 12px;
   font-size: 15px;
   font-family: inherit;
-  background: rgba(106, 147, 248, 0.02);
+  background: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
   outline: none;
 }
@@ -632,13 +636,6 @@ body {
   color: var(--light-text);
 }
 
-.char-count {
-  font-weight: 500;
-}
-
-.char-count .current {
-  color: var(--primary-color);
-}
 
 .draft-indicator {
   display: flex;
@@ -1102,17 +1099,7 @@ body {
   color: var(--light-text);
 }
 
-.char-count {
-  font-weight: 500;
-}
 
-.char-count .current {
-  color: var(--primary-color);
-}
-
-.word-count {
-  opacity: 0.8;
-}
 
 .draft-status {
   color: #27ae60;
