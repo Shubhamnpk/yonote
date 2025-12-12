@@ -1,51 +1,233 @@
-<!DOCTYPE html>                    
-  
+<!DOCTYPE html>
+
 <html lang="en" dir="ltr">
   <head>
-    <meta charset="utf-8">  
-    <title>yo note </title>                      
+    <meta charset="utf-8">
+    <title>Yo Note</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="yonote/style.css">
+    <link rel="stylesheet" href="enhanced.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Iconscout Link For Icons -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.6/css/line.css">
-</head>
+  </head>
   <body>
-    <div class="popup-box">
-      <div class="popup">
-        <div class="content">
-          <header>
-            <p></p>
+    <!-- Compact Single-Row Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="app-title">
+          <i class="uil uil-notes"></i>
+          Yo Note
+        </h1>
+        <div class="header-stats">
+          <span id="total-notes">0 notes</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="search-container">
+          <input type="text" id="search-input" placeholder="Search notes..." class="search-input">
+          <button class="search-btn" id="search-btn">
+            <i class="uil uil-search"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="view-filters">
+          <button class="filter-btn active" data-filter="all">
+            <i class="uil uil-list-ul"></i>
+            All
+          </button>
+          <button class="filter-btn" data-filter="pinned">
+            <i class="uil uil-star"></i>
+            Pinned
+          </button>
+          <button class="filter-btn" data-filter="archived">
+            <i class="uil uil-archive"></i>
+            Archive
+          </button>
+        </div>
+
+        <button class="header-btn" id="export-btn" title="Export Notes">
+          <i class="uil uil-export"></i>
+        </button>
+
+        <button class="header-btn" id="import-btn" title="Import Notes">
+          <i class="uil uil-import"></i>
+        </button>
+
+        <button class="button toggle-theme" title="Toggle Theme">
+          <i class="uil uil-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div class="wrapper">
+        <li class="add-box">
+          <div class="icon"><i class="uil uil-plus"></i></div>
+          <p>Create New Note</p>
+        </li>
+      </div>
+    </div>
+
+    <!-- Modern Modal Overlay -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+
+      <div class="modal-container" id="modal-container">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-section">
+            <div class="modal-icon">
+              <i class="uil uil-plus-circle"></i>
+            </div>
+            <div class="modal-title-content">
+              <h2 class="modal-title">Create New Note</h2>
+              <p class="modal-subtitle">Express your thoughts beautifully</p>
+            </div>
+          </div>
+          <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
             <i class="uil uil-times"></i>
-          </header>
-          <form action="#">
-            <div class="row title">
-              <label>Title</label>
-              <input type="text" spellcheck="false">
+          </button>
+        </div>
+
+        <!-- Modal Content with Virtual Scroll -->
+        <div class="modal-content" id="modal-content">
+          <form action="#" class="note-form" id="note-form">
+            <!-- Single Compact Form -->
+            <div class="form-step active" data-step="1">
+              <div class="form-fields compact">
+                <!-- Title Field -->
+                <div class="field-group">
+                  <label for="note-title" class="field-label">
+                    <i class="uil uil-edit"></i>
+                    Title <span class="required">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input type="text" id="note-title" class="modern-input" spellcheck="false"
+                           placeholder="Note title..." maxlength="100">
+                  </div>
+                  <div class="field-error" id="title-error"></div>
+                </div>
+
+                <!-- Description Field -->
+                <div class="field-group">
+                  <label for="note-description" class="field-label">
+                    <i class="uil uil-align-left"></i>
+                    Description <span class="required">*</span>
+                  </label>
+                  <div class="textarea-wrapper">
+                    <textarea id="note-description" class="modern-textarea" spellcheck="false"
+                              placeholder="Write your note here..." maxlength="1000"></textarea>
+                  </div>
+                  <div class="field-error" id="description-error"></div>
+                </div>
+
+                <!-- Compact Options Row -->
+                <div class="field-row compact-options">
+                  <div class="field-group">
+                    <label for="note-category" class="field-label">
+                      <i class="uil uil-tag"></i>
+                      Category
+                    </label>
+                    <select id="note-category" class="modern-select">
+                      <option value="personal">📝 Personal</option>
+                      <option value="work">💼 Work</option>
+                      <option value="ideas">💡 Ideas</option>
+                      <option value="reminders">🔔 Reminders</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="note-priority" class="field-label">
+                      <i class="uil uil-exclamation-triangle"></i>
+                      Priority
+                    </label>
+                    <select id="note-priority" class="modern-select">
+                      <option value="low">🟢 Low</option>
+                      <option value="medium" selected>🟡 Medium</option>
+                      <option value="high">🔴 High</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="note-color" class="field-label">
+                      <i class="uil uil-palette"></i>
+                      Color
+                    </label>
+                    <select id="note-color" class="modern-select">
+                      <option value="yellow">🟡 Yellow</option>
+                      <option value="blue">🔵 Blue</option>
+                      <option value="green">🟢 Green</option>
+                      <option value="pink">🩷 Pink</option>
+                      <option value="purple">🟣 Purple</option>
+                      <option value="orange">🟠 Orange</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="row description">
-              <label>Description</label>
-              <textarea spellcheck="false"></textarea>
-            </div>
-            <button></button>
           </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <div class="modal-stats">
+            <span id="form-stats">Ready to create</span>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="clear-btn">
+              <i class="uil uil-trash-alt"></i>
+              Clear
+            </button>
+            <button type="submit" form="note-form" class="btn-primary" id="submit-btn">
+              <i class="uil uil-plus"></i>
+              Create Note
+            </button>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Hint -->
+        <div class="keyboard-shortcuts">
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+            <span>Quick save</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Esc</kbd>
+            <span>Close modal</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Tab</kbd>
+            <span>Navigate</span>
+          </div>
         </div>
       </div>
     </div>
-    <div class="wrapper">
-      <li class="add-box">
-        <div class="icon"><i class="uil uil-plus"></i></div>                    
-  
-        <p>Add new note</p>
-      </li>
+
+    <!-- Compact Single-Row Footer -->
+    <div id="footer">
+      <div class="footer-content">
+        <div class="footer-text">
+          <div class="copyright">
+            <i class="uil uil-copyright"></i>
+            <span>2025 Yo Guru. All rights reserved.</span>
+          </div>
+          <div class="footer-credits">
+            <span>Designed by Shubam Niraula</span>
+          </div>
+          <div class="footer-links">
+            <a href="#"><i class="uil uil-shield"></i> Privacy</a>
+            <a href="#"><i class="uil uil-file-contract"></i> Terms</a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="yonote/script.js"></script>    
-    <div id="footer">
-    <p>&copy; 2024 Yo Guru. All rights reserved worldwide.</p> <p>Designed and developed by Shubam Niraula </p>
-    <a href="#">Privacy Policy</a>                   <a href="#">Terms of Service</a>                   <br>
-    <button class="button toggle-theme">fun </button>
-    </div></footer>
-    
+    <script src="yonote/script.js"></script>
   </body>
 </html>

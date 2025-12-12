@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yonote webApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.1/purify.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm fixed top-0 w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900"> YO Notes</h1>
+                    <span class="ml-2 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                        <span class="notes-count">0</span> notes
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Added Import/Export buttons -->
+                    <button onclick="document.getElementById('importInput').click()" 
+                            class="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-lg">
+                        <i class="fas fa-file-import mr-2"></i>Import
+                    </button>
+                    <button onclick="exportNotes()" 
+                            class="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-lg">
+                        <i class="fas fa-file-export mr-2"></i>Export
+                    </button>
+                    <!-- Added Category Manager button -->
+                    <button onclick="document.querySelector('.category-manager').classList.remove('hidden')" 
+                            class="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-lg">
+                        <i class="fas fa-tags mr-2"></i>Categories
+                    </button>
+                    <button class="add-box bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        New Note
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importInput" accept=".json" onchange="importNotes(this)" class="hidden">
+
+    <!-- Category Manager Modal -->
+    <div class="category-manager fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-lg bg-white">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold">Manage Categories</h3>
+                <button onclick="this.closest('.category-manager').classList.add('hidden')" 
+                        class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex space-x-2">
+                    <input type="text" 
+                           class="new-category-input flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="New category name">
+                    <button class="add-category-btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        Add
+                    </button>
+                </div>
+                <div class="category-list divide-y"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters section remains the same -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6">
+        <div class="bg-white rounded-lg shadow-sm p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="relative">
+                    <input type="text" class="search-box w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Search notes...">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <select class="category-select w-full py-2 pl-4 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="all">All Categories</option>
+                </select>
+                <select class="sort-select w-full py-2 pl-4 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="date-new">Newest First</option>
+                    <option value="date-old">Oldest First</option>
+                    <option value="title">Title</option>
+                    <option value="priority">Priority</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Notes Grid remains the same -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div class="notes-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Notes will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Updated Add/Edit Note Modal -->
+    <div class="popup-box fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-xl font-semibold text-gray-800">Add a new Note</p>
+                <button class="close-icon text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <input type="text" placeholder="Title" class="title-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <select class="note-category w-full py-2 pl-4 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Category</option>
+                    </select>
+                    
+                    <select class="note-priority w-full py-2 pl-4 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="normal">Normal Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="high">High Priority</option>
+                    </select>
+                </div>
+
+                <div class="editor-container">
+                    <div id="editor" class="h-64 border border-gray-300 rounded-lg"></div>
+                    <!-- Added editor stats and autosave indicator -->
+                    <div class="flex justify-between items-center mt-2 text-sm text-gray-500">
+                        <div class="editor-stats"></div>
+                        <div class="autosave-indicator hidden">Saving...</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="cancel-btn px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="add-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Add Note
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Note Template remains the same -->
+    <template id="note-template">
+     <template id="note-template">
+        <div class="note bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="note-title text-lg font-semibold text-gray-800 truncate"></h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="category-tag px-2 py-1 text-xs rounded-full"></span>
+                        <button class="note-menu-btn text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="note-content text-gray-600 line-clamp-3 mb-4"></div>
+                
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <div class="flex items-center space-x-2">
+                        <i class="far fa-clock"></i>
+                        <span class="note-date"></span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="pin-btn hover:text-gray-700">
+                            <i class="fas fa-thumbtack"></i>
+                        </button>
+                        <button class="edit-btn hover:text-gray-700">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-btn hover:text-red-600">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>   
+    </template>
+
+    <!-- Updated Context Menu -->
+    <div id="context-menu" class="hidden absolute bg-white rounded-lg shadow-lg py-2 w-48 z-50">
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center">
+            <i class="fas fa-edit w-5"></i>
+            <span>Edit</span>
+        </button>
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center">
+            <i class="fas fa-share w-5"></i>
+            <span>Share</span>
+        </button>
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center">
+            <i class="fas fa-copy w-5"></i>
+            <span>Duplicate</span>
+        </button>
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center">
+            <i class="fas fa-print w-5"></i>
+            <span>Print</span>
+        </button>
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center">
+            <i class="fas fa-archive w-5"></i>
+            <span>Archive</span>
+        </button>
+        <div class="context-menu-category px-4 py-2 border-t"></div>
+        <button class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center text-red-600">
+            <i class="fas fa-trash-alt w-5"></i>
+            <span>Delete</span>
+        </button>
+    </div>
+
+    <style>
+        /* Priority indicators */
+        .priority-high {
+            @apply border-l-4 border-red-500;
+        }
+        .priority-medium {
+            @apply border-l-4 border-yellow-500;
+        }
+        .priority-normal {
+            @apply border-l-4 border-green-500;
+        }
+
+        /* Category tags */
+        .category-personal {
+            @apply bg-blue-100 text-blue-800;
+        }
+        .category-work {
+            @apply bg-purple-100 text-purple-800;
+        }
+        .category-shopping {
+            @apply bg-green-100 text-green-800;
+        }
+        .category-ideas {
+            @apply bg-yellow-100 text-yellow-800;
+        }
+        .category-goals {
+            @apply bg-red-100 text-red-800;
+        }
+        .category-important {
+            @apply bg-orange-100 text-orange-800;
+        }
+
+        /* Quill editor styles */
+        .ql-container {
+            font-size: 16px;
+            height: calc(100% - 42px);
+        }
+        .ql-editor {
+            min-height: 200px;
+        }
+        .autosave-indicator {
+            animation: fade 1s ease-in-out infinite;
+        }
+        @keyframes fade {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+    <script src="yonote.js"></script>
+</body>
+</html>
